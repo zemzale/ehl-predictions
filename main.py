@@ -1,6 +1,7 @@
 import random
 import matplotlib.pyplot as plt
 import seaborn as sns
+import datetime
 from collections import Counter
 
 # Set style
@@ -21,31 +22,55 @@ division_2 = [
 all_teams = division_1 + division_2
 
 current_points = {
-    "RŪRE": 23, "PRODUS/BLACK MAGIC": 19, "TUKUMA BRĀĻI II": 20, "SPARTA RB": 17,
-    "3S": 17, "TAURUS": 11, "LIELUPE": 6,
-    "MARELS BOVE II": 26, "MEŽABRĀĻI": 25, "PILSETAS LEĢENDAS E4": 18, "ICE WOLVES E4": 16,
-    "PTA": 13, "SANTEKO": 13, "RUPUČI II": 12, "ARTA ABOLI": 4
+    "RŪRE": 28,
+    "PRODUS/BLACK MAGIC": 22,
+    "TUKUMA BRĀĻI II": 24,
+    "SPARTA RB": 18,
+    "3S": 20,
+    "TAURUS": 20,
+    "LIELUPE": 9,
+    "MARELS BOVE II": 31,
+    "MEŽABRĀĻI": 29,
+    "PILSETAS LEĢENDAS E4": 19,
+    "ICE WOLVES E4": 19,
+    "PTA": 16,
+    "SANTEKO": 16,
+    "RUPUČI II": 13,
+    "ARTA ABOLI": 5
 }
 
 games_played_so_far = {
-    "RŪRE": 12, "PRODUS/BLACK MAGIC": 11, "TUKUMA BRĀĻI II": 11, "SPARTA RB": 11,
-    "3S": 12, "TAURUS": 11, "LIELUPE": 12,
-    "MARELS BOVE II": 11, "MEŽABRĀĻI": 11, "PILSETAS LEĢENDAS E4": 12, "ICE WOLVES E4": 12,
-    "PTA": 12, "SANTEKO": 11, "RUPUČI II": 8, "ARTA ABOLI": 11 
+    "RŪRE": 14,
+    "PRODUS/BLACK MAGIC": 13,
+    "TUKUMA BRĀĻI II": 13,
+    "SPARTA RB": 13,
+    "3S": 13,
+    "TAURUS": 14,
+    "LIELUPE": 15,
+    "MARELS BOVE II": 14,
+    "MEŽABRĀĻI": 13,
+    "PILSETAS LEĢENDAS E4": 14,
+    "ICE WOLVES E4": 14,
+    "PTA": 16,
+    "SANTEKO": 12,
+    "RUPUČI II": 10,
+    "ARTA ABOLI": 14,
 }
 
 # Known missing games (Intra-division based on your list)
 missing_games = [
-    ("TUKUMA BRĀĻI II", "SPARTA RB"),
-    ("PRODUS/BLACK MAGIC", "TAURUS"),
-    ("MARELS BOVE II", "MEŽABRĀĻI"),
-    ("MARELS BOVE II", "PTA"),
+    #("TUKUMA BRĀĻI II", "SPARTA RB"),
+    #("PRODUS/BLACK MAGIC", "TAURUS"),
+    #("MARELS BOVE II", "MEŽABRĀĻI"),
+    #("MARELS BOVE II", "PTA"),
     ("PTA", "MEŽABRĀĻI"),
     ("RUPUČI II", "MEŽABRĀĻI"),
     ("RUPUČI II", "PILSETAS LEĢENDAS E4"),
+    ("RUPUČI II", "ICE WOLVES E4"),
+    ("RUPUČI II", "SANTEKO"),
     ("ARTA ABOLI", "ICE WOLVES E4"),
     ("ARTA ABOLI", "SANTEKO"),
-    ("RUPUČI II", "ARTA ABOLI"),
+    #("RUPUČI II", "ARTA ABOLI"),
 ]
 
 # ============ EXTEND SCHEDULE LOGIC ============
@@ -54,6 +79,25 @@ def generate_inter_division_games():
     new_games = []
     for d1_team in division_1:
         for d2_team in division_2:
+            if d1_team == "RŪRE" and d2_team == "PILSETAS LEĢENDAS E4":
+                if d2_team in ["PILSETAS LEĢENDAS E4", "ARTA ABOLI"]:
+                    continue
+            if d1_team == "TUKUMA BRĀĻI II" and d2_team == "ICE WOLVES E4":
+                continue
+            if d1_team == "3S":
+                if d2_team in ["PTA"]:
+                    continue
+            if d1_team == "PRODUS/BLACK MAGIC" and d2_team == "RUPUČI II":
+                continue
+            if d1_team == "TAURUS":
+                if d2_team in ["PTA", "ARTA ABOLI"]:
+                    continue
+            if d1_team == "SPARTA RB":
+                if d2_team in ["MEŽABRĀĻI"]:
+                    continue
+            if d1_team == "LIELUPE":
+                if d2_team in ["PTA", "ICE WOLVES E4", "PTA"]:
+                    continue
             new_games.append((d1_team, d2_team))
     return new_games
 
@@ -128,7 +172,7 @@ def simulate_playoff_race(num_samples=10000):
             
     return playoff_counts
 
-def viz_playoff_chances(counts, total_sims):
+def viz_playoff_chances(filename, counts, total_sims):
     # Sort teams by probability
     sorted_teams = sorted(counts.keys(), key=lambda x: counts[x], reverse=True)
     probs = [counts[t] / total_sims * 100 for t in sorted_teams]
@@ -160,18 +204,42 @@ def viz_playoff_chances(counts, total_sims):
     
     plt.gca().invert_yaxis() # Highest probability at top
     plt.tight_layout()
-    plt.savefig('playoff_chances.png', dpi=150)
+    plt.savefig(filename, dpi=150)
     plt.show()
+
+def print_points_table():
+    print("\n" + "="*60)
+    print("CURRENT STANDINGS")
+    print("="*60)
+    
+    for div_name, teams in [("DIVISION 1", division_1), ("DIVISION 2", division_2)]:
+        print(f"\n{div_name}")
+        print("-"*60)
+        standings = sorted(teams, key=lambda t: current_points[t] / games_played_so_far[t], reverse=True)
+        print(f"{'Team':<30} {'GP':>4} {'Pts':>5} {'PPG':>6}")
+        print("-"*60)
+        for team in standings:
+            gp = games_played_so_far[team]
+            pts = current_points[team]
+            ppg = pts / gp
+            print(f"{team:<30} {gp:>4} {pts:>5} {ppg:>6.2f}")
+    print("="*60 + "\n")
 
 if __name__ == "__main__":
     N_SAMPLES = 50000 
     print(f"Teams in Div 1: {len(division_1)}")
     print(f"Teams in Div 2: {len(division_2)}")
-    print(f"Simulating {N_SAMPLES} seasons...")
     
+    print_points_table()
+    
+    print(f"Simulating {N_SAMPLES} seasons...")
     results = simulate_playoff_race(N_SAMPLES)
     
     print("Generating Graph...")
-    viz_playoff_chances(results, N_SAMPLES)
-    print("Done. Saved to 'playoff_chances.png'")
+
+    filename = f"playoff_chances_{N_SAMPLES}_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.png"
+
+    viz_playoff_chances(filename, results, N_SAMPLES)
+
+    print(f"Done. Saved to '{filename}'")
 
