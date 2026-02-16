@@ -30,9 +30,24 @@ body {
 }
 
 .shell {
-  width: min(1120px, 94vw);
-  margin: 0 auto;
-  padding: 2rem 0 2.5rem;
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 1.2rem 0.85rem 2.2rem;
+  overflow: hidden;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(360px, 0.9fr) minmax(540px, 1.16fr) minmax(300px, 0.78fr);
+  gap: 0.8rem;
+  align-items: start;
+}
+
+.main-column {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
 }
 
 .hero {
@@ -61,12 +76,6 @@ h1 {
   max-width: 62ch;
 }
 
-.layout {
-  display: grid;
-  grid-template-columns: 1.05fr 1.35fr;
-  gap: 1rem;
-}
-
 .card {
   background: var(--card);
   border: 1px solid var(--line);
@@ -84,7 +93,7 @@ h1 {
 
 .controls h2,
 .results h2,
-.overrides h3 {
+.overrides-panel h2 {
   margin: 0;
   font-size: 1rem;
 }
@@ -181,32 +190,91 @@ button:active {
   margin: 0;
 }
 
-.overrides {
-  border-top: 1px dashed var(--line);
-  padding-top: 1rem;
+.overrides-panel {
+  position: sticky;
+  top: 1rem;
+  height: calc(100vh - 2rem);
+  padding: 1rem;
+  overflow: hidden;
   display: grid;
-  gap: 0.5rem;
+  gap: 0.8rem;
+}
+
+.overrides-panel-head {
+  display: grid;
+  gap: 0.45rem;
 }
 
 .overrides-list {
-  max-height: 315px;
+  min-height: 0;
   overflow: auto;
   display: grid;
-  gap: 0.5rem;
-  padding-right: 0.2rem;
+  gap: 0.4rem;
+  padding-right: 0.25rem;
 }
 
 .override-row {
   display: grid;
-  gap: 0.3rem;
-  padding: 0.55rem;
+  grid-template-columns: minmax(0, 1fr) minmax(170px, 1.35fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
   border-radius: 10px;
   border: 1px solid var(--line);
   background: rgba(30, 24, 20, 0.56);
 }
 
-.override-row strong {
-  font-size: 0.86rem;
+.override-row.auto {
+  border-style: dashed;
+}
+
+.slider-team {
+  font-size: 0.8rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #ffeddc;
+}
+
+.slider-team-right {
+  text-align: right;
+}
+
+.overrides-panel input[type="range"] {
+  padding: 0;
+  accent-color: var(--accent);
+}
+
+.match-slider {
+  min-width: 0;
+}
+
+.mini-ghost {
+  border: 1px solid rgba(255, 153, 28, 0.68);
+  border-radius: 999px;
+  padding: 0.22rem 0.52rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #ffe5cb;
+  background: rgba(255, 153, 28, 0.2);
+  box-shadow: none;
+}
+
+.mini-ghost:hover {
+  transform: none;
+  filter: brightness(1.06);
+}
+
+.mini-inline {
+  padding: 0.2rem 0.48rem;
+}
+
+.controls-panel {
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
 }
 
 .results {
@@ -307,11 +375,26 @@ button:active {
 }
 
 @media (max-width: 980px) {
-  .layout {
+  .workspace {
     grid-template-columns: 1fr;
   }
 
-  .overrides-list {
-    max-height: 260px;
+  .overrides-panel {
+    position: static;
+    height: auto;
+    max-height: none;
+  }
+
+  .controls-panel {
+    position: static;
+    max-height: none;
+  }
+
+  .override-row {
+    grid-template-columns: 1fr;
+  }
+
+  .slider-team-right {
+    text-align: left;
   }
 }
