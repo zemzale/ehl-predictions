@@ -1,43 +1,62 @@
 # EHL Predictions
 
-## Setup
+This repo now includes a TypeScript/Bun implementation that is easier to plug into a web frontend.
+
+## TypeScript + Bun (recommended)
 
 ### Prerequisites
-- Python 3.x
+- Bun 1.x
 
-### Installation
+### Install
 
-1. Clone the repository:
 ```bash
-git clone https://github.com/azemzale/ehl-predictions.git
-cd ehl-predictions
+bun install
 ```
 
-2. Create a virtual environment:
+### Run CLI projection
+
 ```bash
-python3 -m venv venv
+bun run start
 ```
 
-3. Activate the virtual environment:
+Useful flags:
+
 ```bash
-source venv/bin/activate
+bun run start --mode auto --samples 1000000
+bun run start --json
+bun run start --json --out projection.json
 ```
 
-4. Install dependencies:
+### Type-check
+
 ```bash
-pip install -r requirments.txt
+bun run check
 ```
 
-### Usage
+### Run interactive web app
 
-Run the main script:
+```bash
+bun run web:dev
+```
+
+Then open the URL printed by Vite (usually `http://localhost:5173`).
+
+Web controls include:
+- projection mode (`auto`, `exact`, `monte-carlo`)
+- Monte Carlo sample size
+- strength weight slider
+- per-game outcome overrides for scenario planning
+
+Build for production:
+
+```bash
+bun run web:build
+```
+
+## Python (legacy script)
+
+The original Python script is still available:
+
 ```bash
 python main.py
-```
-
-### Deactivate
-
-To deactivate the virtual environment:
-```bash
-deactivate
 ```

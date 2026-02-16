@@ -17,6 +17,10 @@ env/
 build/
 dist/
 *.egg-info/
+*.tsbuildinfo
+
+# JavaScript / Bun
+node_modules/
 
 # Generated projection images
 playoff_chances*.png
