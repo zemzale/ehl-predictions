@@ -27,6 +27,16 @@ function formatLargeNumber(value: number): string {
   return value.toLocaleString();
 }
 
+function formatModeLabel(mode: ProjectionMode): string {
+  if (mode === "monte-carlo") {
+    return "Monte Carlo";
+  }
+  if (mode === "exact") {
+    return "Exact";
+  }
+  return "Auto";
+}
+
 function serializeOverrides(overrides: GameOverrides): string {
   return Object.entries(overrides)
     .sort(([a], [b]) => Number(a) - Number(b))
@@ -80,9 +90,12 @@ export function App() {
 
   return (
     <div className="shell">
+      <div className="background-layer" aria-hidden="true" />
+      <div className="grain-layer" aria-hidden="true" />
       <div className="workspace">
         <aside className="card overrides-panel">
           <div className="overrides-panel-head">
+            <p className="panel-kicker">Scenario Setup</p>
             <h2>Game Result Overrides</h2>
             <p className="small">Team - slider - team layout for quick scenario input.</p>
             <p className="small">Left = first team win side, center = draw, right = second team win side.</p>
@@ -143,6 +156,20 @@ export function App() {
               Tune simulation depth, strength impact, and force outcomes for upcoming games. The same core TypeScript
               simulator powers both this UI and the Bun CLI.
             </p>
+            <div className="hero-stats">
+              <div className="hero-stat">
+                <span>Mode in use</span>
+                <strong>{formatModeLabel(projection.modeUsed)}</strong>
+              </div>
+              <div className="hero-stat">
+                <span>Active overrides</span>
+                <strong>{activeAppliedOverrideCount}</strong>
+              </div>
+              <div className="hero-stat">
+                <span>Scenario volume</span>
+                <strong>{formatLargeNumber(projection.scenarioCount)}</strong>
+              </div>
+            </div>
           </header>
 
           <section className="card results">
@@ -175,6 +202,7 @@ export function App() {
         </main>
 
         <section className="card controls controls-panel">
+          <p className="panel-kicker">Simulation Inputs</p>
           <h2>Projection Controls</h2>
 
           <div className="field">
