@@ -24,3 +24,4 @@ node_modules/
 
 # Generated projection images
 playoff_chances*.png
+.vercel
