@@ -3,9 +3,16 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import datetime
 from collections import Counter
+from itertools import product
 
 # Set style
 sns.set_style("whitegrid")
+
+# How much standings strength affects win probability.
+# 0.0 = pure coin flip, 1.0 = full strength-based probability.
+STRENGTH_WEIGHT = 0.9
+N_SAMPLES = 1_000_000
+MAX_EXACT_SCENARIOS = 2_000_000
 
 # ============ TEAMS & DIVISIONS ============
 division_1 = [
@@ -22,88 +29,68 @@ division_2 = [
 all_teams = division_1 + division_2
 
 current_points = {
-    "RŪRE": 28,
-    "PRODUS/BLACK MAGIC": 22,
-    "TUKUMA BRĀĻI II": 24,
-    "SPARTA RB": 18,
-    "3S": 20,
-    "TAURUS": 20,
-    "LIELUPE": 9,
-    "MARELS BOVE II": 31,
-    "MEŽABRĀĻI": 29,
-    "PILSETAS LEĢENDAS E4": 19,
-    "ICE WOLVES E4": 19,
-    "PTA": 16,
-    "SANTEKO": 16,
-    "RUPUČI II": 13,
-    "ARTA ABOLI": 5
+    "RŪRE": 34,
+    "PRODUS/BLACK MAGIC": 32,
+    "TUKUMA BRĀĻI II": 35,
+    "SPARTA RB": 29,
+    "3S": 28,
+    "TAURUS": 27,
+    "LIELUPE": 16,
+    "MARELS BOVE II": 44,
+    "MEŽABRĀĻI": 40,
+    "PILSETAS LEĢENDAS E4": 20,
+    "ICE WOLVES E4": 28,
+    "PTA": 18,
+    "SANTEKO": 20,
+    "RUPUČI II": 21,
+    "ARTA ABOLI": 6
 }
 
 games_played_so_far = {
-    "RŪRE": 14,
-    "PRODUS/BLACK MAGIC": 13,
-    "TUKUMA BRĀĻI II": 13,
-    "SPARTA RB": 13,
-    "3S": 13,
-    "TAURUS": 14,
-    "LIELUPE": 15,
-    "MARELS BOVE II": 14,
-    "MEŽABRĀĻI": 13,
-    "PILSETAS LEĢENDAS E4": 14,
-    "ICE WOLVES E4": 14,
-    "PTA": 16,
-    "SANTEKO": 12,
-    "RUPUČI II": 10,
-    "ARTA ABOLI": 14,
+    "RŪRE": 17,
+    "PRODUS/BLACK MAGIC": 18,
+    "TUKUMA BRĀĻI II": 18,
+    "SPARTA RB": 19,
+    "3S": 18,
+    "TAURUS": 18,
+    "LIELUPE": 19,
+    "MARELS BOVE II": 19,
+    "MEŽABRĀĻI": 20,
+    "PILSETAS LEĢENDAS E4": 18,
+    "ICE WOLVES E4": 19,
+    "PTA": 21,
+    "SANTEKO": 18,
+    "RUPUČI II": 17,
+    "ARTA ABOLI": 19,
 }
 
-# Known missing games (Intra-division based on your list)
+# Missing games based on the provided table (blank cells)
 missing_games = [
-    #("TUKUMA BRĀĻI II", "SPARTA RB"),
-    #("PRODUS/BLACK MAGIC", "TAURUS"),
-    #("MARELS BOVE II", "MEŽABRĀĻI"),
-    #("MARELS BOVE II", "PTA"),
-    ("PTA", "MEŽABRĀĻI"),
+    ("MARELS BOVE II", "RŪRE"),
+    ("MARELS BOVE II", "3S"),
+
+    ("ICE WOLVES E4", "PRODUS/BLACK MAGIC"),
+
+    ("PILSETAS LEĢENDAS E4", "TUKUMA BRĀĻI II"),
+    ("PILSETAS LEĢENDAS E4", "SPARTA RB"),
+    ("PILSETAS LEĢENDAS E4", "LIELUPE"),
+
+    ("RUPUČI II", "RŪRE"),
+    ("RUPUČI II", "3S"),
+    ("RUPUČI II", "TAURUS"),
     ("RUPUČI II", "MEŽABRĀĻI"),
-    ("RUPUČI II", "PILSETAS LEĢENDAS E4"),
-    ("RUPUČI II", "ICE WOLVES E4"),
-    ("RUPUČI II", "SANTEKO"),
+
+    ("SANTEKO", "RŪRE"),
+    ("SANTEKO", "PRODUS/BLACK MAGIC"),
+    ("SANTEKO", "TAURUS"),
+
+    ("ARTA ABOLI", "TUKUMA BRĀĻI II"),
     ("ARTA ABOLI", "ICE WOLVES E4"),
-    ("ARTA ABOLI", "SANTEKO"),
-    #("RUPUČI II", "ARTA ABOLI"),
+
+    ("3S", "TAURUS"),
+    ("RŪRE", "SPARTA RB"),
+    ("TUKUMA BRĀĻI II", "PRODUS/BLACK MAGIC"),
 ]
-
-# ============ EXTEND SCHEDULE LOGIC ============
-def generate_inter_division_games():
-    """Generates one game between every Div 1 team and every Div 2 team"""
-    new_games = []
-    for d1_team in division_1:
-        for d2_team in division_2:
-            if d1_team == "RŪRE" and d2_team == "PILSETAS LEĢENDAS E4":
-                if d2_team in ["PILSETAS LEĢENDAS E4", "ARTA ABOLI"]:
-                    continue
-            if d1_team == "TUKUMA BRĀĻI II" and d2_team == "ICE WOLVES E4":
-                continue
-            if d1_team == "3S":
-                if d2_team in ["PTA"]:
-                    continue
-            if d1_team == "PRODUS/BLACK MAGIC" and d2_team == "RUPUČI II":
-                continue
-            if d1_team == "TAURUS":
-                if d2_team in ["PTA", "ARTA ABOLI"]:
-                    continue
-            if d1_team == "SPARTA RB":
-                if d2_team in ["MEŽABRĀĻI"]:
-                    continue
-            if d1_team == "LIELUPE":
-                if d2_team in ["PTA", "ICE WOLVES E4", "PTA"]:
-                    continue
-            new_games.append((d1_team, d2_team))
-    return new_games
-
-# WARNING: Only uncomment this if teams strictly haven't played these matchups yet.
-# If they have played some, this will double-count them.
-missing_games.extend(generate_inter_division_games()) 
 
 
 # ============ PRE-CALCULATION ============
@@ -113,64 +100,128 @@ for t1, t2 in missing_games:
     total_scheduled_games[t1] += 1
     total_scheduled_games[t2] += 1
 
-def simulate_playoff_race(num_samples=10000):
-    playoff_counts = Counter()
-    
-    # Calculate Strength based on PPG
+def calculate_team_strength():
     team_strength = {}
     for team, pts in current_points.items():
         gp = games_played_so_far.get(team, 1)
         team_strength[team] = pts / gp if gp > 0 else 0.5
-    
+    return team_strength
+
+def get_game_outcomes(team1, team2, team_strength):
+    s1 = team_strength.get(team1, 1.0)
+    s2 = team_strength.get(team2, 1.0)
+    total = s1 + s2
+    raw_p1 = s1 / total if total > 0 else 0.5
+    p1 = 0.5 + ((raw_p1 - 0.5) * STRENGTH_WEIGHT)
+
+    t1 = p1 * 0.55
+    t2 = p1 * 0.75
+    t3 = t2 + ((1 - p1) * 0.4)
+
+    return [
+        (3, 0, t1),
+        (2, 1, t2 - t1),
+        (1, 2, t3 - t2),
+        (0, 3, 0.90 - t3),
+        (1, 1, 0.10),
+    ]
+
+def get_qualifiers(points):
+    def get_ppg(t_name):
+        return points[t_name] / total_scheduled_games[t_name]
+
+    d1_standings = sorted(division_1, key=get_ppg, reverse=True)
+    d2_standings = sorted(division_2, key=get_ppg, reverse=True)
+
+    qualifiers = []
+    qualifiers.extend(d1_standings[:3])
+    qualifiers.extend(d2_standings[:3])
+
+    leftovers = d1_standings[3:] + d2_standings[3:]
+    leftovers_sorted = sorted(leftovers, key=get_ppg, reverse=True)
+    qualifiers.extend(leftovers_sorted[:2])
+    return qualifiers
+
+def simulate_playoff_race(num_samples=10000):
+    playoff_counts = Counter()
+    team_strength = calculate_team_strength()
+    game_outcomes = [get_game_outcomes(t1, t2, team_strength) for t1, t2 in missing_games]
+
     for _ in range(num_samples):
         points = current_points.copy()
-        
-        # 1. Sim Games
-        for team1, team2 in missing_games:
-            s1 = team_strength.get(team1, 1.0)
-            s2 = team_strength.get(team2, 1.0)
-            total = s1 + s2
-            p1 = s1 / total if total > 0 else 0.5
-            
+
+        for game_index, (team1, team2) in enumerate(missing_games):
             rand = random.random()
-            
-            if rand < p1 * 0.55: points[team1] += 3
-            elif rand < p1 * 0.75: 
-                points[team1] += 2; points[team2] += 1
-            elif rand < p1 * 0.75 + ((1-p1) * 0.4): 
-                points[team1] += 1; points[team2] += 2
-            elif rand < 0.90: points[team2] += 3
-            else: 
-                points[team1] += 1; points[team2] += 1
+            cumulative = 0.0
+            selected = game_outcomes[game_index][-1]
+            for outcome in game_outcomes[game_index]:
+                cumulative += outcome[2]
+                if rand <= cumulative:
+                    selected = outcome
+                    break
 
-        # 2. PPG Calculation Helper
-        def get_ppg(t_name):
-            return points[t_name] / total_scheduled_games[t_name]
+            points[team1] += selected[0]
+            points[team2] += selected[1]
 
-        # 3. Division Logic
-        # Sort Div 1 by PPG
-        d1_standings = sorted(division_1, key=get_ppg, reverse=True)
-        # Sort Div 2 by PPG
-        d2_standings = sorted(division_2, key=get_ppg, reverse=True)
-        
-        # 4. Determine Qualifiers
-        qualifiers = []
-        
-        # Rule A: Top 3 from each division
-        qualifiers.extend(d1_standings[:3])
-        qualifiers.extend(d2_standings[:3])
-        
-        # Rule B: 2 Top teams from ALL leftovers (Wildcard)
-        leftovers = d1_standings[3:] + d2_standings[3:]
-        leftovers_sorted = sorted(leftovers, key=get_ppg, reverse=True)
-        
-        qualifiers.extend(leftovers_sorted[:2])
-        
-        # 5. Record Results
+        qualifiers = get_qualifiers(points)
         for q in qualifiers:
             playoff_counts[q] += 1
-            
+
     return playoff_counts
+
+def run_exact_playoff_race():
+    playoff_probs = {team: 0.0 for team in all_teams}
+    team_strength = calculate_team_strength()
+    game_outcomes = [get_game_outcomes(t1, t2, team_strength) for t1, t2 in missing_games]
+
+    scenario_prob_sum = 0.0
+    outcome_index_range = [range(5) for _ in missing_games]
+
+    for scenario in product(*outcome_index_range):
+        points = current_points.copy()
+        scenario_prob = 1.0
+
+        for game_index, outcome_index in enumerate(scenario):
+            team1, team2 = missing_games[game_index]
+            p1_delta, p2_delta, outcome_prob = game_outcomes[game_index][outcome_index]
+            points[team1] += p1_delta
+            points[team2] += p2_delta
+            scenario_prob *= outcome_prob
+
+        if scenario_prob == 0.0:
+            continue
+
+        qualifiers = get_qualifiers(points)
+        for q in qualifiers:
+            playoff_probs[q] += scenario_prob
+
+        scenario_prob_sum += scenario_prob
+
+    return playoff_probs, scenario_prob_sum
+
+def run_playoff_projection(mode="auto", num_samples=10000):
+    scenario_count = 5 ** len(missing_games)
+
+    if mode == "exact" or (mode == "auto" and scenario_count <= MAX_EXACT_SCENARIOS):
+        print(f"Running exact mode across {scenario_count:,} scenarios...")
+        counts, total_weight = run_exact_playoff_race()
+        print(f"Exact mode complete. Probability mass checked: {total_weight:.6f}")
+        return counts, total_weight, "exact"
+
+    print(f"Running Monte Carlo mode with {num_samples:,} samples...")
+    counts = simulate_playoff_race(num_samples)
+    return counts, float(num_samples), "monte-carlo"
+
+def print_upcoming_games():
+    print("\n" + "="*60)
+    print("UPCOMING GAMES (FROM MISSING LIST)")
+    print("="*60)
+
+    sorted_games = sorted(missing_games, key=lambda g: (g[0], g[1]))
+    for idx, (home, away) in enumerate(sorted_games, start=1):
+        print(f"{idx:>2}. {home} vs {away}")
+
+    print("="*60 + "\n")
 
 def viz_playoff_chances(filename, counts, total_sims):
     # Sort teams by probability
@@ -226,20 +277,19 @@ def print_points_table():
     print("="*60 + "\n")
 
 if __name__ == "__main__":
-    N_SAMPLES = 50000 
     print(f"Teams in Div 1: {len(division_1)}")
     print(f"Teams in Div 2: {len(division_2)}")
     
     print_points_table()
+    print_upcoming_games()
     
-    print(f"Simulating {N_SAMPLES} seasons...")
-    results = simulate_playoff_race(N_SAMPLES)
+    results, denominator, mode_used = run_playoff_projection(mode="auto", num_samples=N_SAMPLES)
     
     print("Generating Graph...")
 
-    filename = f"playoff_chances_{N_SAMPLES}_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.png"
+    run_label = f"{mode_used}_{int(denominator)}"
+    filename = f"playoff_chances_{run_label}_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.png"
 
-    viz_playoff_chances(filename, results, N_SAMPLES)
+    viz_playoff_chances(filename, results, denominator)
 
     print(f"Done. Saved to '{filename}'")
-
