@@ -345,10 +345,10 @@ export function getUpcomingGames(): Array<{ gameIndex: number; home: TeamName; a
 export function getOutcomeOptionsForGame(gameIndex: number): Array<{ index: OutcomeIndex; label: string }> {
   const [team1, team2] = missingGames[gameIndex];
   return [
-    { index: 0, label: `${team1} wins 3-0` },
-    { index: 1, label: `${team1} wins 2-1` },
-    { index: 2, label: `${team2} wins 2-1` },
-    { index: 3, label: `${team2} wins 3-0` },
+    { index: 0, label: `${team1} win in regulation` },
+    { index: 1, label: `${team1} win in OT` },
+    { index: 2, label: `${team2} win in OT` },
+    { index: 3, label: `${team2} win in regulation` },
     { index: 4, label: "Draw 1-1" }
   ];
 }
