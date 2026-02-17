@@ -67,14 +67,24 @@ body {
   z-index: 1;
   display: grid;
   grid-template-columns: minmax(340px, 0.9fr) minmax(540px, 1.2fr) minmax(290px, 0.78fr);
+  grid-template-areas: "overrides main controls";
   gap: 0.95rem;
   align-items: start;
 }
 
 .main-column {
+  grid-area: main;
   min-width: 0;
   display: grid;
   gap: 0.95rem;
+}
+
+.overrides-panel {
+  grid-area: overrides;
+}
+
+.controls-panel {
+  grid-area: controls;
 }
 
 .hero {
@@ -120,6 +130,24 @@ h1 {
   gap: 0.6rem;
 }
 
+.mobile-panel-buttons,
+.mobile-draft-actions,
+.mobile-close {
+  display: none;
+}
+
+.mobile-panel-buttons {
+  margin-top: 0.75rem;
+  gap: 0.55rem;
+  grid-template-columns: 1fr 1fr;
+}
+
+.mobile-draft-actions {
+  margin-top: 0.75rem;
+  gap: 0.5rem;
+  grid-template-columns: 1fr 1fr;
+}
+
 .hero-stat {
   border-radius: 12px;
   border: 1px solid rgba(31, 79, 108, 0.28);
@@ -158,6 +186,13 @@ h1 {
 .results {
   display: grid;
   gap: 0.95rem;
+}
+
+.panel-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.6rem;
 }
 
 .controls h2,
@@ -261,6 +296,28 @@ button:disabled {
   font-size: 0.8rem;
 }
 
+.quick-actions {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.quick-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.quick-action {
+  border-radius: 999px;
+  padding: 0.3rem 0.6rem;
+}
+
+.is-active {
+  background: rgba(31, 79, 108, 0.18);
+  border-color: rgba(31, 79, 108, 0.5);
+  color: #1b3f58;
+}
+
 .overrides-panel {
   position: sticky;
   top: 1rem;
@@ -275,6 +332,28 @@ button:disabled {
   gap: 0.45rem;
 }
 
+.overrides-legend {
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 0.86rem;
+  color: #31465f;
+}
+
+.team-filter-row {
+  display: grid;
+  gap: 0.32rem;
+}
+
+.team-filter-controls {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.team-filter-controls .mini-ghost {
+  padding-inline: 0.65rem;
+}
+
 .overrides-list {
   min-height: 0;
   overflow: auto;
@@ -283,11 +362,18 @@ button:disabled {
   padding-right: 0.2rem;
 }
 
+.empty-overrides {
+  padding: 0.54rem;
+  border-radius: 10px;
+  border: 1px dashed rgba(31, 79, 108, 0.25);
+  background: rgba(255, 255, 255, 0.45);
+}
+
 .override-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(170px, 1.35fr) minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.48rem;
+  gap: 0.38rem 0.48rem;
   padding: 0.54rem;
   border-radius: 10px;
   border: 1px solid rgba(31, 79, 108, 0.25);
@@ -318,6 +404,26 @@ button:disabled {
 
 .match-slider {
   min-width: 0;
+}
+
+.override-status {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border-radius: 999px;
+  border: 1px solid rgba(31, 79, 108, 0.22);
+  background: rgba(31, 79, 108, 0.08);
+  color: #2a4259;
+  padding: 0.17rem 0.54rem;
+  font-size: 0.72rem;
+  line-height: 1.1;
+}
+
+.override-status.manual {
+  border-color: rgba(192, 122, 45, 0.5);
+  background: rgba(192, 122, 45, 0.14);
+  color: #6d4315;
 }
 
 .mini-ghost {
@@ -417,10 +523,12 @@ button:disabled {
 @media (max-width: 1260px) {
   .workspace {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "main controls"
+      "overrides overrides";
   }
 
   .overrides-panel {
-    grid-column: 1 / -1;
     position: static;
     height: auto;
     max-height: none;
@@ -434,6 +542,10 @@ button:disabled {
 
   .workspace {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "main"
+      "controls"
+      "overrides";
   }
 
   .controls-panel,
@@ -441,6 +553,27 @@ button:disabled {
     position: static;
     max-height: none;
     height: auto;
+  }
+
+  .mobile-panel-buttons,
+  .mobile-draft-actions,
+  .mobile-close {
+    display: grid;
+  }
+
+  .mobile-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-start;
+  }
+
+  .mobile-edit-panel {
+    display: none;
+  }
+
+  .mobile-edit-panel.mobile-open {
+    display: grid;
   }
 
   .hero-stats {
