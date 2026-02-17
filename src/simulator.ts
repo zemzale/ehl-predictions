@@ -49,7 +49,7 @@ const currentPoints: Record<TeamName, number> = {
   "TUKUMA BRĀĻI II": 35,
   "SPARTA RB": 29,
   "3S": 28,
-  TAURUS: 27,
+  TAURUS: 28,
   LIELUPE: 16,
   "MARELS BOVE II": 44,
   "MEŽABRĀĻI": 40,
@@ -57,7 +57,7 @@ const currentPoints: Record<TeamName, number> = {
   "ICE WOLVES E4": 28,
   PTA: 18,
   SANTEKO: 20,
-  "RUPUČI II": 21,
+  "RUPUČI II": 22,
   "ARTA ABOLI": 6
 };
 
@@ -67,7 +67,7 @@ const gamesPlayedSoFar: Record<TeamName, number> = {
   "TUKUMA BRĀĻI II": 18,
   "SPARTA RB": 19,
   "3S": 18,
-  TAURUS: 18,
+  TAURUS: 19,
   LIELUPE: 19,
   "MARELS BOVE II": 19,
   "MEŽABRĀĻI": 20,
@@ -75,7 +75,7 @@ const gamesPlayedSoFar: Record<TeamName, number> = {
   "ICE WOLVES E4": 19,
   PTA: 21,
   SANTEKO: 18,
-  "RUPUČI II": 17,
+  "RUPUČI II": 18,
   "ARTA ABOLI": 19
 };
 
@@ -88,7 +88,6 @@ const missingGames: ReadonlyArray<readonly [TeamName, TeamName]> = [
   ["PILSETAS LEĢENDAS E4", "LIELUPE"],
   ["RUPUČI II", "RŪRE"],
   ["RUPUČI II", "3S"],
-  ["RUPUČI II", "TAURUS"],
   ["RUPUČI II", "MEŽABRĀĻI"],
   ["SANTEKO", "RŪRE"],
   ["SANTEKO", "PRODUS/BLACK MAGIC"],
